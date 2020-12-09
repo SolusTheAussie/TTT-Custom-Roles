@@ -384,7 +384,8 @@ end
 -- Used to be in think, now a timer
 local function WinChecker()
 	hook.Add("PlayerDeath", "OnPlayerDeath", function(victim, infl, attacker)
-		if victim:GetJester() and attacker:IsPlayer() and infl:GetClass() ~= env_fire and not (attacker:GetJester() or attacker:GetSwapper()) and GetRoundState() == ROUND_ACTIVE then
+		-- If the victim is a jester, and they were killed by a role which is on the innocent team, mark the jester as killed.
+		if victim:GetJester() and attacker:IsPlayer() and infl:GetClass() ~= env_fire and (attacker:GetJester() or attacker:GetSwapper() or attacker:GetAssassin() or attacker:GetHypnotist() or attacker:GetTraitor() or attacker:GetKiller() or attacker:GetVampire() or attacker:GetZombie()) and GetRoundState() == ROUND_ACTIVE then
 			net.Start("TTT_JesterKiller")
 			net.WriteString(attacker:Nick())
 			net.WriteString(victim:Nick())
@@ -1061,8 +1062,8 @@ function GM:TTTCheckForWin()
 	elseif not traitor_alive and not innocent_alive and killer_alive then
 		return WIN_KILLER
 	elseif not jester_alive and jesterkilled == 1 then
-		-- ultimately if no one is alive, traitors win
-		return WIN_JESTER
+		-- If the Jester's been killed, traitors win.
+		return WIN_TRAITOR
 	end
 	return WIN_NONE
 end
